@@ -1,24 +1,27 @@
 import { Link, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, ClipboardList, AlertTriangle, BarChart3,
-  Info, Phone, Home, ChevronLeft, ChevronRight, Shield
+  Info, Phone, Home, ChevronLeft, ChevronRight, Shield, Map
 } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const navItems = [
-  { title: 'Home', path: '/', icon: Home },
-  { title: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
-  { title: 'Tasks', path: '/tasks', icon: ClipboardList },
-  { title: 'Alerts', path: '/alerts', icon: AlertTriangle },
-  { title: 'Analytics', path: '/analytics', icon: BarChart3 },
-  { title: 'About', path: '/about', icon: Info },
-  { title: 'Contact', path: '/contact', icon: Phone },
+  { key: 'home', path: '/', icon: Home },
+  { key: 'dashboard', path: '/dashboard', icon: LayoutDashboard },
+  { key: 'tasks', path: '/tasks', icon: ClipboardList },
+  { key: 'alerts', path: '/alerts', icon: AlertTriangle },
+  { key: 'heatmap', path: '/heatmap', icon: Map },
+  { key: 'analytics', path: '/analytics', icon: BarChart3 },
+  { key: 'about', path: '/about', icon: Info },
+  { key: 'contact', path: '/contact', icon: Phone },
 ];
 
 export function AppSidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
+  const { t } = useLanguage();
 
   return (
     <aside className={cn(
@@ -45,7 +48,7 @@ export function AppSidebar() {
               )}
             >
               <item.icon className="h-5 w-5 shrink-0" />
-              {!collapsed && <span>{item.title}</span>}
+              {!collapsed && <span>{t(item.key)}</span>}
             </Link>
           );
         })}
