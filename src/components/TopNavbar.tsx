@@ -1,22 +1,26 @@
-import { Moon, Sun, Bell, User, Menu, Globe, Shield } from 'lucide-react';
+import { Moon, Sun, Bell, Menu, Shield, ExternalLink } from 'lucide-react';
 import { useTheme } from './ThemeProvider';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
-import { cn } from '@/lib/utils';
+import { ProfileDropdown } from './ProfileDropdown';
+import { LanguageSwitcher } from './LanguageSwitcher';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const mobileNavItems = [
-  { title: 'Home', path: '/' },
-  { title: 'Dashboard', path: '/dashboard' },
-  { title: 'Tasks', path: '/tasks' },
-  { title: 'Alerts', path: '/alerts' },
-  { title: 'Analytics', path: '/analytics' },
-  { title: 'About', path: '/about' },
-  { title: 'Contact', path: '/contact' },
+  { key: 'home', path: '/' },
+  { key: 'dashboard', path: '/dashboard' },
+  { key: 'tasks', path: '/tasks' },
+  { key: 'alerts', path: '/alerts' },
+  { key: 'heatmap', path: '/heatmap' },
+  { key: 'analytics', path: '/analytics' },
+  { key: 'about', path: '/about' },
+  { key: 'contact', path: '/contact' },
 ];
 
 export function TopNavbar({ alertCount = 0 }: { alertCount?: number }) {
   const { theme, toggle } = useTheme();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { t } = useLanguage();
 
   return (
     <header className="h-14 border-b border-border bg-card flex items-center justify-between px-4 sticky top-0 z-40">
@@ -31,9 +35,11 @@ export function TopNavbar({ alertCount = 0 }: { alertCount?: number }) {
       </div>
 
       <div className="flex items-center gap-2">
-        <button className="p-2 rounded-lg hover:bg-muted transition-colors relative" title="Language">
-          <Globe className="h-4 w-4 text-muted-foreground" />
+        <button onClick={() => window.open('https://www.osha.gov/safety-management', '_blank')}
+          className="p-2 rounded-lg hover:bg-muted transition-colors" title={t('safetyGuidelines')}>
+          <ExternalLink className="h-4 w-4 text-muted-foreground" />
         </button>
+        <LanguageSwitcher />
         <Link to="/alerts" className="p-2 rounded-lg hover:bg-muted transition-colors relative">
           <Bell className="h-4 w-4 text-muted-foreground" />
           {alertCount > 0 && (
@@ -45,22 +51,16 @@ export function TopNavbar({ alertCount = 0 }: { alertCount?: number }) {
         <button onClick={toggle} className="p-2 rounded-lg hover:bg-muted transition-colors">
           {theme === 'dark' ? <Sun className="h-4 w-4 text-muted-foreground" /> : <Moon className="h-4 w-4 text-muted-foreground" />}
         </button>
-        <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-          <User className="h-4 w-4 text-primary" />
-        </div>
+        <ProfileDropdown />
       </div>
 
       {mobileOpen && (
         <div className="absolute top-14 left-0 right-0 bg-card border-b border-border shadow-elevated md:hidden z-50">
           <nav className="p-4 space-y-1">
             {mobileNavItems.map(item => (
-              <Link
-                key={item.path}
-                to={item.path}
-                onClick={() => setMobileOpen(false)}
-                className="block px-3 py-2.5 rounded-lg text-sm hover:bg-muted transition-colors"
-              >
-                {item.title}
+              <Link key={item.path} to={item.path} onClick={() => setMobileOpen(false)}
+                className="block px-3 py-2.5 rounded-lg text-sm hover:bg-muted transition-colors">
+                {t(item.key)}
               </Link>
             ))}
           </nav>
