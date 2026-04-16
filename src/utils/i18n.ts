@@ -40,6 +40,8 @@ export const translations: Record<Language, Record<string, string>> = {
     alreadyHaveAccount: 'Already have an account?',
     signInWithGoogle: 'Sign in with Google',
     or: 'or',
+    save: 'Save',
+    role: 'Role',
   },
   hi: {
     dashboard: 'डैशबोर्ड',
@@ -80,6 +82,8 @@ export const translations: Record<Language, Record<string, string>> = {
     alreadyHaveAccount: 'पहले से खाता है?',
     signInWithGoogle: 'Google से लॉगिन',
     or: 'या',
+    save: 'सहेजें',
+    role: 'भूमिका',
   },
   mr: {
     dashboard: 'डॅशबोर्ड',
@@ -120,5 +124,7 @@ export const translations: Record<Language, Record<string, string>> = {
     alreadyHaveAccount: 'आधीच खाते आहे?',
     signInWithGoogle: 'Google ने लॉगिन',
     or: 'किंवा',
+    save: 'जतन करा',
+    role: 'भूमिका',
   },
 };
