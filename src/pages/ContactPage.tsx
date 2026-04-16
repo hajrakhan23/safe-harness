@@ -2,15 +2,30 @@ import { useState } from 'react';
 import { AppLayout } from '@/components/AppLayout';
 import { Mail, Phone, MapPin, Send } from 'lucide-react';
 import { toast } from 'sonner';
+import emailjs from '@emailjs/browser';
 
 export default function ContactPage() {
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.name || !form.email || !form.message) { toast.error('Please fill required fields'); return; }
-    toast.success('Message sent successfully! We\'ll get back to you soon.');
-    setForm({ name: '', email: '', subject: '', message: '' });
+    setLoading(true);
+    try {
+      await emailjs.send('service_s63ntv1', 'template_9peg19k', {
+        name: form.name,
+        email: form.email,
+        subject: form.subject,
+        message: form.message,
+        time: new Date().toLocaleString(),
+      }, 'F0Y4vDRe847839sgH');
+      toast.success('Message sent successfully!');
+      setForm({ name: '', email: '', subject: '', message: '' });
+    } catch {
+      toast.error('Failed to send message. Please try again.');
+    }
+    setLoading(false);
   };
 
   return (
@@ -42,8 +57,8 @@ export default function ContactPage() {
           </div>
           <input placeholder="Subject" value={form.subject} onChange={e => setForm({ ...form, subject: e.target.value })} className="w-full px-4 py-3 rounded-lg border border-input bg-background text-foreground text-sm" />
           <textarea placeholder="Your Message *" rows={5} value={form.message} onChange={e => setForm({ ...form, message: e.target.value })} className="w-full px-4 py-3 rounded-lg border border-input bg-background text-foreground text-sm resize-none" />
-          <button type="submit" className="flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:opacity-90 transition">
-            <Send className="h-4 w-4" /> Send Message
+          <button type="submit" disabled={loading} className="flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:opacity-90 transition disabled:opacity-50">
+            <Send className="h-4 w-4" /> {loading ? 'Sending...' : 'Send Message'}
           </button>
         </form>
       </div>
