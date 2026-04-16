@@ -14,7 +14,132 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      alerts: {
+        Row: {
+          acknowledged: boolean | null
+          created_at: string
+          id: string
+          location: string | null
+          message: string
+          risk: string
+          type: string | null
+          user_id: string | null
+          worker_name: string | null
+        }
+        Insert: {
+          acknowledged?: boolean | null
+          created_at?: string
+          id?: string
+          location?: string | null
+          message: string
+          risk?: string
+          type?: string | null
+          user_id?: string | null
+          worker_name?: string | null
+        }
+        Update: {
+          acknowledged?: boolean | null
+          created_at?: string
+          id?: string
+          location?: string | null
+          message?: string
+          risk?: string
+          type?: string | null
+          user_id?: string | null
+          worker_name?: string | null
+        }
+        Relationships: []
+      }
+      incidents: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          location: string
+          status: string
+          type: string
+          user_id: string | null
+          worker_name: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          location: string
+          status?: string
+          type?: string
+          user_id?: string | null
+          worker_name?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          location?: string
+          status?: string
+          type?: string
+          user_id?: string | null
+          worker_name?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          full_name: string | null
+          id: string
+          role: string | null
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string | null
+          id: string
+          role?: string | null
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          role?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      sensor_data: {
+        Row: {
+          created_at: string
+          gas_level: number
+          id: string
+          oxygen_level: number
+          temperature: number
+          user_id: string | null
+          worker_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          gas_level: number
+          id?: string
+          oxygen_level: number
+          temperature: number
+          user_id?: string | null
+          worker_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          gas_level?: number
+          id?: string
+          oxygen_level?: number
+          temperature?: number
+          user_id?: string | null
+          worker_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
