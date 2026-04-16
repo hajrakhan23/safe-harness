@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { AppLayout } from '@/components/AppLayout';
 import { supabase } from '@/integrations/supabase/client';
-import { MapContainer, TileLayer, CircleMarker, Popup } from 'react-leaflet';
+import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
 interface AlertPoint {
@@ -28,49 +28,65 @@ const riskColor = (risk: string) => {
 
 export default function HeatmapPage() {
   const [alerts, setAlerts] = useState<AlertPoint[]>([]);
+  const mapRef = useRef<L.Map | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const markersRef = useRef<L.CircleMarker[]>([]);
 
   useEffect(() => {
-    supabase.from('alerts').select('id, message, risk, location, created_at')
-      .order('created_at', { ascending: false }).limit(100)
-      .then(({ data }) => { if (data) setAlerts(data); });
-
-    const interval = setInterval(() => {
+    const fetchAlerts = () => {
       supabase.from('alerts').select('id, message, risk, location, created_at')
         .order('created_at', { ascending: false }).limit(100)
         .then(({ data }) => { if (data) setAlerts(data); });
-    }, 10000);
+    };
+    fetchAlerts();
+    const interval = setInterval(fetchAlerts, 10000);
     return () => clearInterval(interval);
   }, []);
 
-  const markers = alerts.map(a => {
-    const base = zoneCoords[a.location] || [17.6599, 75.9064];
-    return {
-      ...a,
-      lat: base[0] + (Math.random() - 0.5) * 0.01,
-      lng: base[1] + (Math.random() - 0.5) * 0.01,
+  useEffect(() => {
+    if (!containerRef.current) return;
+    if (!mapRef.current) {
+      mapRef.current = L.map(containerRef.current).setView([17.6599, 75.9064], 13);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/">OSM</a>',
+      }).addTo(mapRef.current);
+    }
+    return () => {
+      if (mapRef.current) {
+        mapRef.current.remove();
+        mapRef.current = null;
+      }
     };
-  });
+  }, []);
+
+  useEffect(() => {
+    if (!mapRef.current) return;
+    // Clear old markers
+    markersRef.current.forEach(m => m.remove());
+    markersRef.current = [];
+
+    alerts.forEach(a => {
+      const base = zoneCoords[a.location] || [17.6599, 75.9064];
+      const lat = base[0] + (Math.random() - 0.5) * 0.01;
+      const lng = base[1] + (Math.random() - 0.5) * 0.01;
+      const color = riskColor(a.risk);
+      const marker = L.circleMarker([lat, lng], {
+        radius: 10,
+        color,
+        fillColor: color,
+        fillOpacity: 0.6,
+      }).addTo(mapRef.current!);
+      marker.bindPopup(`<strong>${a.risk}</strong><br/>${a.message}<br/><small>${new Date(a.created_at).toLocaleString()}</small>`);
+      markersRef.current.push(marker);
+    });
+  }, [alerts]);
 
   return (
     <AppLayout>
       <div className="p-4 md:p-6 space-y-4">
         <h1 className="text-2xl font-display font-bold text-foreground">Hazard Heatmap</h1>
         <div className="rounded-xl overflow-hidden border border-border shadow-card" style={{ height: 500 }}>
-          <MapContainer center={[17.6599, 75.9064]} zoom={13} style={{ height: '100%', width: '100%' }}>
-            <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/">OSM</a>'
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
-            {markers.map(m => (
-              <CircleMarker key={m.id + m.lat} center={[m.lat, m.lng]} radius={10}
-                pathOptions={{ color: riskColor(m.risk), fillColor: riskColor(m.risk), fillOpacity: 0.6 }}>
-                <Popup>
-                  <strong>{m.risk}</strong><br />{m.message}<br />
-                  <small>{new Date(m.created_at).toLocaleString()}</small>
-                </Popup>
-              </CircleMarker>
-            ))}
-          </MapContainer>
+          <div ref={containerRef} style={{ height: '100%', width: '100%' }} />
         </div>
       </div>
     </AppLayout>
