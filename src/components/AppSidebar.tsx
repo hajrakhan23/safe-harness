@@ -1,19 +1,20 @@
 import { Link, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, ClipboardList, AlertTriangle, BarChart3,
-  Info, Phone, Home, ChevronLeft, ChevronRight, Shield, Map
+  Info, Phone, Home, ChevronLeft, ChevronRight, Shield, Map, User
 } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 const navItems = [
-  { key: 'home', path: '/', icon: Home },
+  { key: 'home', path: '/home', icon: Home },
   { key: 'dashboard', path: '/dashboard', icon: LayoutDashboard },
   { key: 'tasks', path: '/tasks', icon: ClipboardList },
   { key: 'alerts', path: '/alerts', icon: AlertTriangle },
   { key: 'heatmap', path: '/heatmap', icon: Map },
   { key: 'analytics', path: '/analytics', icon: BarChart3 },
+  { key: 'profile', path: '/profile', icon: User },
   { key: 'about', path: '/about', icon: Info },
   { key: 'contact', path: '/contact', icon: Phone },
 ];
@@ -40,6 +41,7 @@ export function AppSidebar() {
             <Link
               key={item.path}
               to={item.path}
+              title={t(item.key)}
               className={cn(
                 'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors',
                 active

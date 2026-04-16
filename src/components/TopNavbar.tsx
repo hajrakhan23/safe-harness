@@ -7,12 +7,13 @@ import { LanguageSwitcher } from './LanguageSwitcher';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 const mobileNavItems = [
-  { key: 'home', path: '/' },
+  { key: 'home', path: '/home' },
   { key: 'dashboard', path: '/dashboard' },
   { key: 'tasks', path: '/tasks' },
   { key: 'alerts', path: '/alerts' },
   { key: 'heatmap', path: '/heatmap' },
   { key: 'analytics', path: '/analytics' },
+  { key: 'profile', path: '/profile' },
   { key: 'about', path: '/about' },
   { key: 'contact', path: '/contact' },
 ];
@@ -28,7 +29,7 @@ export function TopNavbar({ alertCount = 0 }: { alertCount?: number }) {
         <button className="md:hidden" onClick={() => setMobileOpen(!mobileOpen)}>
           <Menu className="h-5 w-5 text-foreground" />
         </button>
-        <Link to="/" className="flex items-center gap-2 md:hidden">
+        <Link to="/home" className="flex items-center gap-2 md:hidden">
           <Shield className="h-6 w-6 text-primary" />
           <span className="font-display font-bold">Suraksha360</span>
         </Link>
@@ -40,7 +41,7 @@ export function TopNavbar({ alertCount = 0 }: { alertCount?: number }) {
           <ExternalLink className="h-4 w-4 text-muted-foreground" />
         </button>
         <LanguageSwitcher />
-        <Link to="/alerts" className="p-2 rounded-lg hover:bg-muted transition-colors relative">
+        <Link to="/alerts" className="p-2 rounded-lg hover:bg-muted transition-colors relative" title={t('alerts')}>
           <Bell className="h-4 w-4 text-muted-foreground" />
           {alertCount > 0 && (
             <span className="absolute -top-0.5 -right-0.5 h-4 w-4 rounded-full bg-critical text-critical-foreground text-[10px] flex items-center justify-center font-bold">
@@ -48,7 +49,7 @@ export function TopNavbar({ alertCount = 0 }: { alertCount?: number }) {
             </span>
           )}
         </Link>
-        <button onClick={toggle} className="p-2 rounded-lg hover:bg-muted transition-colors">
+        <button onClick={toggle} className="p-2 rounded-lg hover:bg-muted transition-colors" title={theme === 'dark' ? 'Light mode' : 'Dark mode'}>
           {theme === 'dark' ? <Sun className="h-4 w-4 text-muted-foreground" /> : <Moon className="h-4 w-4 text-muted-foreground" />}
         </button>
         <ProfileDropdown />
