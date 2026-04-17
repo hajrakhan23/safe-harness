@@ -1,7 +1,6 @@
 import { AppLayout } from '@/components/AppLayout';
 import { useSensorSimulation } from '@/hooks/useSensorSimulation';
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { MapPin } from 'lucide-react';
 
 export default function AnalyticsPage() {
   const { history, alerts } = useSensorSimulation();
@@ -37,7 +36,6 @@ export default function AnalyticsPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Gas Trends */}
           <div className="bg-card rounded-xl p-4 shadow-card">
             <h3 className="font-display font-semibold text-card-foreground mb-4">Gas & Oxygen Trends</h3>
             <ResponsiveContainer width="100%" height={250}>
@@ -53,7 +51,6 @@ export default function AnalyticsPage() {
             </ResponsiveContainer>
           </div>
 
-          {/* Risk Distribution */}
           <div className="bg-card rounded-xl p-4 shadow-card">
             <h3 className="font-display font-semibold text-card-foreground mb-4">Risk Distribution</h3>
             <ResponsiveContainer width="100%" height={250}>
@@ -66,8 +63,7 @@ export default function AnalyticsPage() {
             </ResponsiveContainer>
           </div>
 
-          {/* Exposure Tracking */}
-          <div className="bg-card rounded-xl p-4 shadow-card">
+          <div className="bg-card rounded-xl p-4 shadow-card lg:col-span-2">
             <h3 className="font-display font-semibold text-card-foreground mb-4">Exposure Hours by Zone</h3>
             <ResponsiveContainer width="100%" height={250}>
               <BarChart data={exposureData}>
@@ -79,16 +75,8 @@ export default function AnalyticsPage() {
               </BarChart>
             </ResponsiveContainer>
           </div>
-
-          {/* Heatmap Placeholder */}
-          <div className="bg-card rounded-xl p-4 shadow-card flex flex-col items-center justify-center min-h-[300px]">
-            <MapPin className="h-12 w-12 text-muted-foreground mb-3" />
-            <h3 className="font-display font-semibold text-card-foreground mb-1">Hazard Heatmap</h3>
-            <p className="text-muted-foreground text-sm text-center max-w-xs">Geographic heatmap integration coming soon. This will visualize high-risk zones across the city.</p>
-          </div>
         </div>
 
-        {/* Incident Logs */}
         <div className="bg-card rounded-xl p-4 shadow-card">
           <h3 className="font-display font-semibold text-card-foreground mb-4">Incident Log</h3>
           <div className="overflow-x-auto">
