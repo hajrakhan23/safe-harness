@@ -20,10 +20,11 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth();
+function ProtectedRoute({ children, allowWorker = true }: { children: React.ReactNode; allowWorker?: boolean }) {
+  const { user, loading, profile } = useAuth();
   if (loading) return <div className="min-h-screen flex items-center justify-center bg-background text-foreground">Loading...</div>;
   if (!user) return <Navigate to="/login" replace />;
+  if (!allowWorker && profile?.role === 'worker') return <Navigate to="/worker-dashboard" replace />;
   return <>{children}</>;
 }
 
