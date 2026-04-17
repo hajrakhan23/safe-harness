@@ -45,12 +45,12 @@ function AppRoutes() {
       <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
       <Route path="/signup" element={<PublicRoute><SignupPage /></PublicRoute>} />
       <Route path="/home" element={<HomePage />} />
-      <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+      <Route path="/dashboard" element={<ProtectedRoute allowWorker={false}><DashboardPage /></ProtectedRoute>} />
       <Route path="/worker-dashboard" element={<ProtectedRoute><WorkerDashboardPage /></ProtectedRoute>} />
-      <Route path="/tasks" element={<ProtectedRoute><TasksPage /></ProtectedRoute>} />
-      <Route path="/alerts" element={<ProtectedRoute><AlertsPage /></ProtectedRoute>} />
-      <Route path="/heatmap" element={<ProtectedRoute><HeatmapPage /></ProtectedRoute>} />
-      <Route path="/analytics" element={<ProtectedRoute><AnalyticsPage /></ProtectedRoute>} />
+      <Route path="/tasks" element={<ProtectedRoute allowWorker={false}><TasksPage /></ProtectedRoute>} />
+      <Route path="/alerts" element={<ProtectedRoute allowWorker={false}><AlertsPage /></ProtectedRoute>} />
+      <Route path="/heatmap" element={<ProtectedRoute allowWorker={false}><HeatmapPage /></ProtectedRoute>} />
+      <Route path="/analytics" element={<ProtectedRoute allowWorker={false}><AnalyticsPage /></ProtectedRoute>} />
       <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
       <Route path="/about" element={<AboutPage />} />
       <Route path="/contact" element={<ContactPage />} />
