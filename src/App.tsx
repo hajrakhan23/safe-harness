@@ -6,6 +6,7 @@ import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import HomePage from "./pages/HomePage";
 import DashboardPage from "./pages/DashboardPage";
+import WorkerDashboardPage from "./pages/WorkerDashboardPage";
 import TasksPage from "./pages/TasksPage";
 import AlertsPage from "./pages/AlertsPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
@@ -27,9 +28,12 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 }
 
 function PublicRoute({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth();
+  const { user, loading, profile } = useAuth();
   if (loading) return <div className="min-h-screen flex items-center justify-center bg-background text-foreground">Loading...</div>;
-  if (user) return <Navigate to="/dashboard" replace />;
+  if (user) {
+    const target = profile?.role === 'worker' ? '/worker-dashboard' : '/dashboard';
+    return <Navigate to={target} replace />;
+  }
   return <>{children}</>;
 }
 
@@ -41,6 +45,7 @@ function AppRoutes() {
       <Route path="/signup" element={<PublicRoute><SignupPage /></PublicRoute>} />
       <Route path="/home" element={<HomePage />} />
       <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+      <Route path="/worker-dashboard" element={<ProtectedRoute><WorkerDashboardPage /></ProtectedRoute>} />
       <Route path="/tasks" element={<ProtectedRoute><TasksPage /></ProtectedRoute>} />
       <Route path="/alerts" element={<ProtectedRoute><AlertsPage /></ProtectedRoute>} />
       <Route path="/heatmap" element={<ProtectedRoute><HeatmapPage /></ProtectedRoute>} />
