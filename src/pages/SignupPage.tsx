@@ -10,6 +10,8 @@ export default function SignupPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [role, setRole] = useState('supervisor');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { t } = useLanguage();
@@ -17,7 +19,7 @@ export default function SignupPage() {
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -25,9 +27,26 @@ export default function SignupPage() {
         emailRedirectTo: window.location.origin,
       },
     });
-    setLoading(false);
+
     if (error) {
+      setLoading(false);
       toast.error(error.message);
+      return;
+    }
+
+    // Update profile (auto-created by trigger) with phone & role
+    if (data.user) {
+      await supabase.from('profiles').update({
+        full_name: fullName,
+        phone,
+        role,
+      }).eq('id', data.user.id);
+    }
+
+    setLoading(false);
+    if (data.session) {
+      toast.success('Welcome to Suraksha360!');
+      navigate('/dashboard');
     } else {
       toast.success('Check your email to confirm your account!');
     }
@@ -44,7 +63,7 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4">
+    <div className="min-h-screen flex items-center justify-center bg-background px-4 py-8">
       <div className="w-full max-w-md bg-card rounded-2xl shadow-elevated p-8 space-y-6">
         <div className="text-center space-y-2">
           <Shield className="h-12 w-12 text-primary mx-auto" />
@@ -62,6 +81,21 @@ export default function SignupPage() {
             <label className="text-sm font-medium text-foreground">{t('email')}</label>
             <input type="email" value={email} onChange={e => setEmail(e.target.value)} required
               className="mt-1 w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground text-sm" />
+          </div>
+          <div>
+            <label className="text-sm font-medium text-foreground">{t('phone')}</label>
+            <input type="tel" value={phone} onChange={e => setPhone(e.target.value)}
+              placeholder="+91 9876543210"
+              className="mt-1 w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground text-sm" />
+          </div>
+          <div>
+            <label className="text-sm font-medium text-foreground">{t('role')}</label>
+            <select value={role} onChange={e => setRole(e.target.value)}
+              className="mt-1 w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground text-sm">
+              <option value="supervisor">Supervisor</option>
+              <option value="worker">Worker</option>
+              <option value="admin">Admin</option>
+            </select>
           </div>
           <div>
             <label className="text-sm font-medium text-foreground">{t('password')}</label>

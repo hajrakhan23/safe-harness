@@ -1,91 +1,89 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { AppLayout } from '@/components/AppLayout';
-import { supabase } from '@/integrations/supabase/client';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
-interface AlertPoint {
-  id: string;
-  message: string;
-  risk: string;
-  location: string;
-  created_at: string;
+interface Zone {
+  name: string;
+  lat: number;
+  lng: number;
+  risk: 'CRITICAL' | 'WARNING' | 'SAFE';
+  detail: string;
 }
 
-const zoneCoords: Record<string, [number, number]> = {
-  'Solapur Zone 1': [17.6599, 75.9064],
-  'Solapur Zone 2': [17.6700, 75.9200],
-  'Solapur Zone 3': [17.6500, 75.8900],
-  'Mumbai Zone A': [19.0760, 72.8777],
-  'Pune Zone B': [18.5204, 73.8567],
-};
+const mumbaiZones: Zone[] = [
+  { name: 'Dharavi', lat: 19.0444, lng: 72.8570, risk: 'CRITICAL', detail: 'High gas accumulation in sewer network' },
+  { name: 'Sion', lat: 19.0433, lng: 72.8610, risk: 'CRITICAL', detail: 'Critical oxygen levels detected' },
+  { name: 'Chembur', lat: 19.0626, lng: 72.9005, risk: 'WARNING', detail: 'Elevated temperature & gas readings' },
+  { name: 'Andheri East', lat: 19.1136, lng: 72.8697, risk: 'WARNING', detail: 'Periodic methane spikes' },
+  { name: 'Borivali', lat: 19.2307, lng: 72.8567, risk: 'WARNING', detail: 'Sewer maintenance ongoing' },
+  { name: 'Colaba', lat: 18.9067, lng: 72.8147, risk: 'SAFE', detail: 'All sensors within normal range' },
+  { name: 'Bandra West', lat: 19.0596, lng: 72.8295, risk: 'SAFE', detail: 'Clear conditions' },
+  { name: 'Powai', lat: 19.1176, lng: 72.9060, risk: 'SAFE', detail: 'Routine inspection complete' },
+];
 
-const riskColor = (risk: string) => {
-  if (risk === 'CRITICAL') return '#ef4444';
-  if (risk === 'WARNING') return '#f59e0b';
-  return '#22c55e';
-};
+const riskColor = (r: Zone['risk']) =>
+  r === 'CRITICAL' ? '#ef4444' : r === 'WARNING' ? '#f59e0b' : '#22c55e';
 
 export default function HeatmapPage() {
-  const [alerts, setAlerts] = useState<AlertPoint[]>([]);
   const mapRef = useRef<L.Map | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const markersRef = useRef<L.CircleMarker[]>([]);
 
   useEffect(() => {
-    const fetchAlerts = () => {
-      supabase.from('alerts').select('id, message, risk, location, created_at')
-        .order('created_at', { ascending: false }).limit(100)
-        .then(({ data }) => { if (data) setAlerts(data); });
-    };
-    fetchAlerts();
-    const interval = setInterval(fetchAlerts, 10000);
-    return () => clearInterval(interval);
-  }, []);
+    if (!containerRef.current || mapRef.current) return;
 
-  useEffect(() => {
-    if (!containerRef.current) return;
-    if (!mapRef.current) {
-      mapRef.current = L.map(containerRef.current).setView([17.6599, 75.9064], 13);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/">OSM</a>',
-      }).addTo(mapRef.current);
-    }
-    return () => {
-      if (mapRef.current) {
-        mapRef.current.remove();
-        mapRef.current = null;
-      }
-    };
-  }, []);
+    const map = L.map(containerRef.current, {
+      center: [19.0760, 72.8777],
+      zoom: 11,
+      scrollWheelZoom: true,
+    });
+    mapRef.current = map;
 
-  useEffect(() => {
-    if (!mapRef.current) return;
-    // Clear old markers
-    markersRef.current.forEach(m => m.remove());
-    markersRef.current = [];
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>',
+      maxZoom: 19,
+    }).addTo(map);
 
-    alerts.forEach(a => {
-      const base = zoneCoords[a.location] || [17.6599, 75.9064];
-      const lat = base[0] + (Math.random() - 0.5) * 0.01;
-      const lng = base[1] + (Math.random() - 0.5) * 0.01;
-      const color = riskColor(a.risk);
-      const marker = L.circleMarker([lat, lng], {
-        radius: 10,
+    mumbaiZones.forEach(z => {
+      const color = riskColor(z.risk);
+      L.circle([z.lat, z.lng], {
+        radius: 1200,
         color,
         fillColor: color,
-        fillOpacity: 0.6,
-      }).addTo(mapRef.current!);
-      marker.bindPopup(`<strong>${a.risk}</strong><br/>${a.message}<br/><small>${new Date(a.created_at).toLocaleString()}</small>`);
-      markersRef.current.push(marker);
+        fillOpacity: 0.35,
+        weight: 2,
+      })
+        .bindPopup(
+          `<div style="font-family:system-ui;min-width:160px">
+            <strong style="color:${color};font-size:14px">${z.name}</strong><br/>
+            <span style="font-size:12px;color:#666">Risk: ${z.risk}</span><br/>
+            <span style="font-size:11px">${z.detail}</span>
+          </div>`
+        )
+        .addTo(map);
     });
-  }, [alerts]);
+
+    return () => {
+      map.remove();
+      mapRef.current = null;
+    };
+  }, []);
 
   return (
     <AppLayout>
       <div className="p-4 md:p-6 space-y-4">
-        <h1 className="text-2xl font-display font-bold text-foreground">Hazard Heatmap</h1>
-        <div className="rounded-xl overflow-hidden border border-border shadow-card" style={{ height: 500 }}>
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <div>
+            <h1 className="text-2xl font-display font-bold text-foreground">Hazard Heatmap</h1>
+            <p className="text-muted-foreground text-sm">Real-time risk visualization across Mumbai zones</p>
+          </div>
+          <div className="flex items-center gap-3 text-xs">
+            <span className="flex items-center gap-1.5"><span className="h-3 w-3 rounded-full bg-critical" />Critical</span>
+            <span className="flex items-center gap-1.5"><span className="h-3 w-3 rounded-full bg-warning" />Warning</span>
+            <span className="flex items-center gap-1.5"><span className="h-3 w-3 rounded-full bg-success" />Safe</span>
+          </div>
+        </div>
+        <div className="rounded-xl overflow-hidden border border-border shadow-card" style={{ height: 560 }}>
           <div ref={containerRef} style={{ height: '100%', width: '100%' }} />
         </div>
       </div>
