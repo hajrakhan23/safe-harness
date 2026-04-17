@@ -6,8 +6,9 @@ import {
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useAuth } from '@/contexts/AuthContext';
 
-const navItems = [
+const adminNav = [
   { key: 'home', path: '/home', icon: Home },
   { key: 'dashboard', path: '/dashboard', icon: LayoutDashboard },
   { key: 'tasks', path: '/tasks', icon: ClipboardList },
@@ -19,10 +20,19 @@ const navItems = [
   { key: 'contact', path: '/contact', icon: Phone },
 ];
 
+const workerNav = [
+  { key: 'workerDashboard', path: '/worker-dashboard', icon: LayoutDashboard },
+  { key: 'profile', path: '/profile', icon: User },
+  { key: 'about', path: '/about', icon: Info },
+  { key: 'contact', path: '/contact', icon: Phone },
+];
+
 export function AppSidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
   const { t } = useLanguage();
+  const { profile } = useAuth();
+  const navItems = profile?.role === 'worker' ? workerNav : adminNav;
 
   return (
     <aside className={cn(
