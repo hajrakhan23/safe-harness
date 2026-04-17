@@ -89,6 +89,7 @@ export type Database = {
           created_at: string
           full_name: string | null
           id: string
+          phone: string | null
           role: string | null
           updated_at: string
         }
@@ -97,6 +98,7 @@ export type Database = {
           created_at?: string
           full_name?: string | null
           id: string
+          phone?: string | null
           role?: string | null
           updated_at?: string
         }
@@ -105,6 +107,7 @@ export type Database = {
           created_at?: string
           full_name?: string | null
           id?: string
+          phone?: string | null
           role?: string | null
           updated_at?: string
         }
@@ -137,6 +140,84 @@ export type Database = {
           temperature?: number
           user_id?: string | null
           worker_id?: string | null
+        }
+        Relationships: []
+      }
+      task_history: {
+        Row: {
+          completed_at: string
+          created_at: string
+          description: string | null
+          id: string
+          location: string | null
+          status: string
+          title: string
+          user_id: string
+          worker_name: string | null
+        }
+        Insert: {
+          completed_at?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          location?: string | null
+          status: string
+          title: string
+          user_id: string
+          worker_name?: string | null
+        }
+        Update: {
+          completed_at?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          location?: string | null
+          status?: string
+          title?: string
+          user_id?: string
+          worker_name?: string | null
+        }
+        Relationships: []
+      }
+      tasks: {
+        Row: {
+          created_at: string
+          description: string | null
+          end_time: string | null
+          id: string
+          location: string | null
+          start_time: string | null
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+          worker_name: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          end_time?: string | null
+          id?: string
+          location?: string | null
+          start_time?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+          user_id: string
+          worker_name?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          end_time?: string | null
+          id?: string
+          location?: string | null
+          start_time?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+          worker_name?: string | null
         }
         Relationships: []
       }
