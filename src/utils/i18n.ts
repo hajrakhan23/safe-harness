@@ -49,6 +49,8 @@ export const translations: Record<Language, Record<string, string>> = {
     previousTasks: 'Previous Tasks',
     createNewTask: 'Create New Task',
     workerDashboard: 'Worker Dashboard',
+    liveTracking: 'Live Worker Tracking',
+    assignTo: 'Assign To',
   },
   hi: {
     dashboard: 'डैशबोर्ड',
@@ -98,6 +100,8 @@ export const translations: Record<Language, Record<string, string>> = {
     previousTasks: 'पिछले कार्य',
     createNewTask: 'नया कार्य बनाएं',
     workerDashboard: 'वर्कर डैशबोर्ड',
+    liveTracking: 'लाइव वर्कर ट्रैकिंग',
+    assignTo: 'सौंपें',
   },
   mr: {
     dashboard: 'डॅशबोर्ड',
@@ -147,5 +151,7 @@ export const translations: Record<Language, Record<string, string>> = {
     previousTasks: 'मागील कार्ये',
     createNewTask: 'नवीन कार्य तयार करा',
     workerDashboard: 'वर्कर डॅशबोर्ड',
+    liveTracking: 'लाइव्ह कामगार ट्रॅकिंग',
+    assignTo: 'नियुक्त करा',
   },
 };

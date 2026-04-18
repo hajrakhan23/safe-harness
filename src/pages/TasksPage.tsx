@@ -17,7 +17,13 @@ interface Task {
   end_time: string | null;
   status: string;
   user_id: string;
+  assigned_to: string | null;
   created_at: string;
+}
+
+interface Worker {
+  id: string;
+  full_name: string | null;
 }
 
 interface HistoryTask {
@@ -44,7 +50,8 @@ export default function TasksPage() {
   const [history, setHistory] = useState<HistoryTask[]>([]);
   const [tab, setTab] = useState<'active' | 'history'>('active');
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({ title: '', description: '', worker_name: '', location: '', start_time: '', end_time: '' });
+  const [workers, setWorkers] = useState<Worker[]>([]);
+  const [form, setForm] = useState({ title: '', description: '', worker_name: '', assigned_to: '', location: '', start_time: '', end_time: '' });
 
   const fetchTasks = async () => {
     const { data } = await supabase.from('tasks').select('*').order('created_at', { ascending: false });
@@ -59,6 +66,9 @@ export default function TasksPage() {
     if (!user) return;
     fetchTasks();
     fetchHistory();
+    // Load workers for assignment dropdown
+    supabase.from('profiles').select('id, full_name').eq('role', 'worker')
+      .then(({ data }) => { if (data) setWorkers(data as Worker[]); });
 
     const channel = supabase
       .channel('tasks-realtime')
@@ -73,12 +83,18 @@ export default function TasksPage() {
     if (!form.title || !form.worker_name) { toast.error('Title and worker name required'); return; }
     if (!user) return;
     const { error } = await supabase.from('tasks').insert({
-      ...form,
+      title: form.title,
+      description: form.description,
+      worker_name: form.worker_name,
+      location: form.location,
+      start_time: form.start_time,
+      end_time: form.end_time,
+      assigned_to: form.assigned_to || null,
       user_id: user.id,
       status: 'pending',
     });
     if (error) { toast.error(error.message); return; }
-    setForm({ title: '', description: '', worker_name: '', location: '', start_time: '', end_time: '' });
+    setForm({ title: '', description: '', worker_name: '', assigned_to: '', location: '', start_time: '', end_time: '' });
     setShowForm(false);
     toast.success('Task created');
   };
@@ -153,6 +169,19 @@ export default function TasksPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <input placeholder="Task title *" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} className="px-3 py-2 rounded-lg border border-input bg-background text-foreground text-sm" />
               <input placeholder="Worker name *" value={form.worker_name} onChange={e => setForm({ ...form, worker_name: e.target.value })} className="px-3 py-2 rounded-lg border border-input bg-background text-foreground text-sm" />
+              <select
+                value={form.assigned_to}
+                onChange={e => {
+                  const w = workers.find(w => w.id === e.target.value);
+                  setForm({ ...form, assigned_to: e.target.value, worker_name: w?.full_name || form.worker_name });
+                }}
+                className="px-3 py-2 rounded-lg border border-input bg-background text-foreground text-sm"
+              >
+                <option value="">{t('assignTo')} (optional)</option>
+                {workers.map(w => (
+                  <option key={w.id} value={w.id}>{w.full_name || 'Unnamed worker'}</option>
+                ))}
+              </select>
               <input placeholder="Location" value={form.location} onChange={e => setForm({ ...form, location: e.target.value })} className="px-3 py-2 rounded-lg border border-input bg-background text-foreground text-sm" />
               <div className="flex gap-2">
                 <input type="time" value={form.start_time} onChange={e => setForm({ ...form, start_time: e.target.value })} className="flex-1 px-3 py-2 rounded-lg border border-input bg-background text-foreground text-sm" />

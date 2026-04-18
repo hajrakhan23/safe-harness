@@ -1,7 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, ClipboardList, AlertTriangle, BarChart3,
-  Info, Phone, Home, ChevronLeft, ChevronRight, Shield, Map, User
+  Info, Phone, Home, ChevronLeft, ChevronRight, Shield, Map, User, Radio
 } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
@@ -13,6 +13,7 @@ const adminNav = [
   { key: 'dashboard', path: '/dashboard', icon: LayoutDashboard },
   { key: 'tasks', path: '/tasks', icon: ClipboardList },
   { key: 'alerts', path: '/alerts', icon: AlertTriangle },
+  { key: 'liveTracking', path: '/live-tracking', icon: Radio },
   { key: 'heatmap', path: '/heatmap', icon: Map },
   { key: 'analytics', path: '/analytics', icon: BarChart3 },
   { key: 'profile', path: '/profile', icon: User },

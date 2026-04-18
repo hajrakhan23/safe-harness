@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import { MapPin, Radio, ClipboardList, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { reverseGeocode } from '@/utils/geocoding';
 
 interface Task {
   id: string;
@@ -24,14 +25,19 @@ export default function WorkerDashboardPage() {
   const { t } = useLanguage();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [coords, setCoords] = useState<{ lat: number; lng: number; acc?: number } | null>(null);
+  const [address, setAddress] = useState<string>('');
   const [tracking, setTracking] = useState(false);
   const [sosLoading, setSosLoading] = useState(false);
   const watchIdRef = useRef<number | null>(null);
+  const lastGeocodedRef = useRef<string>('');
 
   const fetchTasks = async () => {
+    if (!user) return;
+    // Workers see tasks assigned to them (or all if none assigned, fallback)
     const { data } = await supabase
       .from('tasks')
       .select('*')
+      .eq('assigned_to', user.id)
       .order('created_at', { ascending: false });
     if (data) setTasks(data as Task[]);
   };
@@ -58,7 +64,15 @@ export default function WorkerDashboardPage() {
       async (pos) => {
         const { latitude, longitude, accuracy } = pos.coords;
         setCoords({ lat: latitude, lng: longitude, acc: accuracy });
-        // Persist every update (browser throttles naturally)
+
+        // Reverse geocode (debounced by coord rounding)
+        const key = `${latitude.toFixed(4)},${longitude.toFixed(4)}`;
+        if (key !== lastGeocodedRef.current) {
+          lastGeocodedRef.current = key;
+          reverseGeocode(latitude, longitude).then(setAddress);
+        }
+
+        // Persist every update
         await supabase.from('locations').insert({
           user_id: user.id,
           latitude,
@@ -82,9 +96,9 @@ export default function WorkerDashboardPage() {
   const handleSOS = async () => {
     if (!user) return;
     setSosLoading(true);
-    const locationStr = coords
+    const locationStr = address || (coords
       ? `${coords.lat.toFixed(5)}, ${coords.lng.toFixed(5)}`
-      : 'Live Worker Location';
+      : 'Live Worker Location');
     const { error } = await supabase.from('alerts').insert({
       user_id: user.id,
       message: '🚨 SOS Triggered by worker',
@@ -137,10 +151,17 @@ export default function WorkerDashboardPage() {
             </span>
           </div>
           {coords ? (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <MapPin className="h-4 w-4 text-primary" />
-              <span>{coords.lat.toFixed(5)}, {coords.lng.toFixed(5)}</span>
-              {coords.acc && <span className="text-xs">(±{Math.round(coords.acc)}m)</span>}
+            <div className="space-y-2">
+              {address && (
+                <div className="flex items-start gap-2 text-sm text-card-foreground">
+                  <MapPin className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                  <span className="leading-snug">{address}</span>
+                </div>
+              )}
+              <div className="text-xs text-muted-foreground pl-6">
+                {coords.lat.toFixed(5)}, {coords.lng.toFixed(5)}
+                {coords.acc && <span className="ml-2">(±{Math.round(coords.acc)}m)</span>}
+              </div>
             </div>
           ) : (
             <p className="text-sm text-muted-foreground">Waiting for GPS signal...</p>

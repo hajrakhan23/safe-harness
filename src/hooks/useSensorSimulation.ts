@@ -62,14 +62,24 @@ export function useSensorSimulation(intervalMs = 9000) {
       }]).then(() => {});
     }
 
+    // AUTO-SOS: gas > 80 OR oxygen < 18 → critical hazardous condition
+    const isHazardous = data.gas_level > 80 || data.oxygen_level < 18;
+
     // Risk-based alert with cooldown
-    if (risk !== 'SAFE') {
+    if (risk !== 'SAFE' || isHazardous) {
       const now = Date.now();
       if (risk === 'CRITICAL' && now - lastAlertTime.current < 30000) return;
       if (risk === 'CRITICAL') lastAlertTime.current = now;
 
       const alert = generateAlert(data, risk);
       if (alert) {
+        // Auto-SOS override
+        if (isHazardous) {
+          alert.type = 'sos';
+          alert.severity = 'CRITICAL';
+          alert.message = `🚨 AUTO-SOS: Hazardous condition (gas ${data.gas_level}%, O₂ ${data.oxygen_level}%)`;
+        }
+
         setAlerts(prev => [alert, ...prev].slice(0, 50));
 
         if (user) {
@@ -77,15 +87,19 @@ export function useSensorSimulation(intervalMs = 9000) {
             user_id: user.id,
             message: alert.message,
             location: 'Solapur Zone 1',
-            risk,
+            risk: isHazardous ? 'CRITICAL' : risk,
             type: alert.type,
             worker_name: alert.worker_name,
           }]).then(() => {});
         }
 
-        if (risk === 'CRITICAL') {
+        if (risk === 'CRITICAL' || isHazardous) {
           playBeepSound();
-          sendAlertEmail({ message: alert.message, location: 'Solapur Zone 1', risk });
+          sendAlertEmail({
+            message: alert.message,
+            location: 'Solapur Zone 1',
+            risk: 'CRITICAL',
+          });
         }
       }
     }
