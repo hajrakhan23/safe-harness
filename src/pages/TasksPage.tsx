@@ -169,6 +169,19 @@ export default function TasksPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <input placeholder="Task title *" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} className="px-3 py-2 rounded-lg border border-input bg-background text-foreground text-sm" />
               <input placeholder="Worker name *" value={form.worker_name} onChange={e => setForm({ ...form, worker_name: e.target.value })} className="px-3 py-2 rounded-lg border border-input bg-background text-foreground text-sm" />
+              <select
+                value={form.assigned_to}
+                onChange={e => {
+                  const w = workers.find(w => w.id === e.target.value);
+                  setForm({ ...form, assigned_to: e.target.value, worker_name: w?.full_name || form.worker_name });
+                }}
+                className="px-3 py-2 rounded-lg border border-input bg-background text-foreground text-sm"
+              >
+                <option value="">{t('assignTo')} (optional)</option>
+                {workers.map(w => (
+                  <option key={w.id} value={w.id}>{w.full_name || 'Unnamed worker'}</option>
+                ))}
+              </select>
               <input placeholder="Location" value={form.location} onChange={e => setForm({ ...form, location: e.target.value })} className="px-3 py-2 rounded-lg border border-input bg-background text-foreground text-sm" />
               <div className="flex gap-2">
                 <input type="time" value={form.start_time} onChange={e => setForm({ ...form, start_time: e.target.value })} className="flex-1 px-3 py-2 rounded-lg border border-input bg-background text-foreground text-sm" />
