@@ -50,6 +50,45 @@ export type Database = {
         }
         Relationships: []
       }
+      health_data: {
+        Row: {
+          age: number | null
+          allergies: string | null
+          blood_group: string | null
+          conditions: string | null
+          created_at: string
+          emergency_contact: string | null
+          id: string
+          notes: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          age?: number | null
+          allergies?: string | null
+          blood_group?: string | null
+          conditions?: string | null
+          created_at?: string
+          emergency_contact?: string | null
+          id?: string
+          notes?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          age?: number | null
+          allergies?: string | null
+          blood_group?: string | null
+          conditions?: string | null
+          created_at?: string
+          emergency_contact?: string | null
+          id?: string
+          notes?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       incidents: {
         Row: {
           created_at: string
