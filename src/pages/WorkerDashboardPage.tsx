@@ -96,9 +96,9 @@ export default function WorkerDashboardPage() {
   const handleSOS = async () => {
     if (!user) return;
     setSosLoading(true);
-    const locationStr = coords
+    const locationStr = address || (coords
       ? `${coords.lat.toFixed(5)}, ${coords.lng.toFixed(5)}`
-      : 'Live Worker Location';
+      : 'Live Worker Location');
     const { error } = await supabase.from('alerts').insert({
       user_id: user.id,
       message: '🚨 SOS Triggered by worker',
@@ -151,10 +151,17 @@ export default function WorkerDashboardPage() {
             </span>
           </div>
           {coords ? (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <MapPin className="h-4 w-4 text-primary" />
-              <span>{coords.lat.toFixed(5)}, {coords.lng.toFixed(5)}</span>
-              {coords.acc && <span className="text-xs">(±{Math.round(coords.acc)}m)</span>}
+            <div className="space-y-2">
+              {address && (
+                <div className="flex items-start gap-2 text-sm text-card-foreground">
+                  <MapPin className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                  <span className="leading-snug">{address}</span>
+                </div>
+              )}
+              <div className="text-xs text-muted-foreground pl-6">
+                {coords.lat.toFixed(5)}, {coords.lng.toFixed(5)}
+                {coords.acc && <span className="ml-2">(±{Math.round(coords.acc)}m)</span>}
+              </div>
             </div>
           ) : (
             <p className="text-sm text-muted-foreground">Waiting for GPS signal...</p>
