@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import { MapPin, Radio, ClipboardList, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { reverseGeocode } from '@/utils/geocoding';
 
 interface Task {
   id: string;
