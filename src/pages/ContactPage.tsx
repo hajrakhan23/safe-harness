@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { AppLayout } from '@/components/AppLayout';
 import { Mail, Phone, MapPin, Send } from 'lucide-react';
 import { toast } from 'sonner';
-import emailjs from '@emailjs/browser';
+import { sendContactMail } from '@/utils/system';
 
 export default function ContactPage() {
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
@@ -13,13 +13,7 @@ export default function ContactPage() {
     if (!form.name || !form.email || !form.message) { toast.error('Please fill required fields'); return; }
     setLoading(true);
     try {
-      await emailjs.send('service_s63ntv1', 'template_9peg19k', {
-        name: form.name,
-        email: form.email,
-        subject: form.subject,
-        message: form.message,
-        time: new Date().toLocaleString(),
-      }, 'F0Y4vDRe847839sgH');
+      await sendContactMail(form);
       toast.success('Message sent successfully!');
       setForm({ name: '', email: '', subject: '', message: '' });
     } catch {

@@ -8,6 +8,7 @@ import { motion } from 'framer-motion';
 import { MapPin, Radio, ClipboardList, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { reverseGeocode } from '@/utils/geocoding';
+import { HealthSnapshot } from '@/components/HealthSnapshot';
 
 interface Task {
   id: string;
@@ -167,6 +168,9 @@ export default function WorkerDashboardPage() {
             <p className="text-sm text-muted-foreground">Waiting for GPS signal...</p>
           )}
         </div>
+
+        {/* Health snapshot */}
+        <HealthSnapshot />
 
         {/* Assigned tasks */}
         <div className="bg-card rounded-xl p-5 shadow-card border border-border">
