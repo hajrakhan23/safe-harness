@@ -13,6 +13,7 @@ import AnalyticsPage from "./pages/AnalyticsPage";
 import AboutPage from "./pages/AboutPage";
 import ContactPage from "./pages/ContactPage";
 import HeatmapPage from "./pages/HeatmapPage";
+import LiveTrackingPage from "./pages/LiveTrackingPage";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import ProfilePage from "./pages/ProfilePage";
@@ -50,6 +51,7 @@ function AppRoutes() {
       <Route path="/tasks" element={<ProtectedRoute allowWorker={false}><TasksPage /></ProtectedRoute>} />
       <Route path="/alerts" element={<ProtectedRoute allowWorker={false}><AlertsPage /></ProtectedRoute>} />
       <Route path="/heatmap" element={<ProtectedRoute allowWorker={false}><HeatmapPage /></ProtectedRoute>} />
+      <Route path="/live-tracking" element={<ProtectedRoute allowWorker={false}><LiveTrackingPage /></ProtectedRoute>} />
       <Route path="/analytics" element={<ProtectedRoute allowWorker={false}><AnalyticsPage /></ProtectedRoute>} />
       <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
       <Route path="/about" element={<AboutPage />} />
