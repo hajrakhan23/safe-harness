@@ -25,14 +25,19 @@ export default function WorkerDashboardPage() {
   const { t } = useLanguage();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [coords, setCoords] = useState<{ lat: number; lng: number; acc?: number } | null>(null);
+  const [address, setAddress] = useState<string>('');
   const [tracking, setTracking] = useState(false);
   const [sosLoading, setSosLoading] = useState(false);
   const watchIdRef = useRef<number | null>(null);
+  const lastGeocodedRef = useRef<string>('');
 
   const fetchTasks = async () => {
+    if (!user) return;
+    // Workers see tasks assigned to them (or all if none assigned, fallback)
     const { data } = await supabase
       .from('tasks')
       .select('*')
+      .eq('assigned_to', user.id)
       .order('created_at', { ascending: false });
     if (data) setTasks(data as Task[]);
   };
@@ -59,7 +64,15 @@ export default function WorkerDashboardPage() {
       async (pos) => {
         const { latitude, longitude, accuracy } = pos.coords;
         setCoords({ lat: latitude, lng: longitude, acc: accuracy });
-        // Persist every update (browser throttles naturally)
+
+        // Reverse geocode (debounced by coord rounding)
+        const key = `${latitude.toFixed(4)},${longitude.toFixed(4)}`;
+        if (key !== lastGeocodedRef.current) {
+          lastGeocodedRef.current = key;
+          reverseGeocode(latitude, longitude).then(setAddress);
+        }
+
+        // Persist every update
         await supabase.from('locations').insert({
           user_id: user.id,
           latitude,
