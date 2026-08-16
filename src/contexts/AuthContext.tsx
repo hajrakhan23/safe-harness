@@ -36,11 +36,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!user) { setProfile(null); return; }
-    supabase.from('profiles').select('full_name, role').eq('id', user.id).single()
-      .then(({ data }) => {
-        if (data) setProfile(data as { full_name: string; role: string });
-      });
+
+    (async () => {
+      // Ensure a profile row exists (covers Google sign-in) and keep it in sync
+      const meta = (user.user_metadata ?? {}) as Record<string, string>;
+      const { error: upsertErr } = await supabase.from('profiles').upsert({
+        id: user.id,
+        full_name: meta.full_name || meta.name || user.email || 'User',
+        avatar_url: meta.avatar_url || meta.picture || null,
+      }, { onConflict: 'id' });
+      if (upsertErr) console.error('[profiles] upsert failed:', upsertErr);
+      else console.log('[profiles] synced for', user.id);
+
+      const { data, error } = await supabase
+        .from('profiles').select('full_name, role').eq('id', user.id).maybeSingle();
+      if (error) console.error('[profiles] fetch failed:', error);
+      if (data) setProfile(data as { full_name: string; role: string });
+    })();
   }, [user]);
+
 
   const signOut = async () => {
     await supabase.auth.signOut();
