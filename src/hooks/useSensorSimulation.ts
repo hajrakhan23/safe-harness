@@ -59,8 +59,11 @@ export function useSensorSimulation(intervalMs = 9000) {
         oxygen_level: data.oxygen_level,
         temperature: data.temperature,
         worker_id: data.worker_id,
-      }]).then(() => {});
+      }]).then(({ error }) => {
+        if (error) console.error('[sensor_data] insert failed:', error);
+      });
     }
+
 
     // AUTO-SOS: gas > 80 OR oxygen < 18 → critical hazardous condition
     const isHazardous = data.gas_level > 80 || data.oxygen_level < 18;
