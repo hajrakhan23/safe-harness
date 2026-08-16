@@ -74,12 +74,15 @@ export default function WorkerDashboardPage() {
         }
 
         // Persist every update
-        await supabase.from('locations').insert({
+        const { error: locErr } = await supabase.from('locations').insert({
           user_id: user.id,
           latitude,
           longitude,
           accuracy,
         });
+        if (locErr) console.error('[locations] insert failed:', locErr);
+        else console.log('[locations] saved', { latitude, longitude });
+
       },
       (err) => {
         console.warn('Geolocation error', err);
@@ -110,9 +113,12 @@ export default function WorkerDashboardPage() {
     });
     setSosLoading(false);
     if (error) {
+      console.error('[alerts] SOS insert failed:', error);
       toast.error(error.message);
       return;
     }
+    console.log('[alerts] SOS saved', { user_id: user.id, location: locationStr });
+
     toast.error('🚨 SOS Emergency Alert Sent!', { duration: 5000 });
   };
 
