@@ -113,9 +113,12 @@ export default function WorkerDashboardPage() {
     });
     setSosLoading(false);
     if (error) {
+      console.error('[alerts] SOS insert failed:', error);
       toast.error(error.message);
       return;
     }
+    console.log('[alerts] SOS saved', { user_id: user.id, location: locationStr });
+
     toast.error('🚨 SOS Emergency Alert Sent!', { duration: 5000 });
   };
 
