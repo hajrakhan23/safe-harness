@@ -38,14 +38,18 @@ export const saveHealthData = async (data: HealthData) => {
     .eq('user_id', user.id)
     .maybeSingle();
 
-  if (existing.data?.id) {
-    return await supabase
-      .from('health_data')
-      .update(data)
-      .eq('id', existing.data.id);
+  const res = existing.data?.id
+    ? await supabase.from('health_data').update(data).eq('id', existing.data.id)
+    : await supabase.from('health_data').insert([{ user_id: user.id, ...data }]);
+
+  if (res.error) {
+    console.error('[health_data] save failed:', res.error);
+    throw res.error;
   }
-  return await supabase.from('health_data').insert([{ user_id: user.id, ...data }]);
+  console.log('[health_data] saved for', user.id);
+  return res;
 };
+
 
 /* ---------------- TASKS ---------------- */
 export const completeTask = async (task: { id: string; title: string; description?: string | null; location?: string | null; worker_name?: string | null }) => {
