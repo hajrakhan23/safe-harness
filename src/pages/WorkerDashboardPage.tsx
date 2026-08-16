@@ -74,12 +74,15 @@ export default function WorkerDashboardPage() {
         }
 
         // Persist every update
-        await supabase.from('locations').insert({
+        const { error: locErr } = await supabase.from('locations').insert({
           user_id: user.id,
           latitude,
           longitude,
           accuracy,
         });
+        if (locErr) console.error('[locations] insert failed:', locErr);
+        else console.log('[locations] saved', { latitude, longitude });
+
       },
       (err) => {
         console.warn('Geolocation error', err);
