@@ -143,10 +143,14 @@ export const sendContactMail = (form: { name: string; email: string; subject?: s
 export const saveLocation = async (coords: { lat: number; lng: number; accuracy?: number }) => {
   const user = await getCurrentUser();
   if (!user) return null;
-  return await supabase.from('locations').insert([{
+  const res = await supabase.from('locations').insert([{
     user_id: user.id,
     latitude: coords.lat,
     longitude: coords.lng,
     accuracy: coords.accuracy ?? null,
   }]);
+  if (res.error) console.error('[locations] insert failed:', res.error);
+  else console.log('[locations] saved', coords);
+  return res;
 };
+
