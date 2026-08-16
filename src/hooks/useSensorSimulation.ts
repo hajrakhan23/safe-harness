@@ -93,8 +93,11 @@ export function useSensorSimulation(intervalMs = 9000) {
             risk: isHazardous ? 'CRITICAL' : risk,
             type: alert.type,
             worker_name: alert.worker_name,
-          }]).then(() => {});
+          }]).then(({ error }) => {
+            if (error) console.error('[alerts] insert failed:', error);
+          });
         }
+
 
         if (risk === 'CRITICAL' || isHazardous) {
           playBeepSound();
